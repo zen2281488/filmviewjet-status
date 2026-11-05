@@ -82,6 +82,13 @@ describe('renderPage', () => {
     expect(page.textContent).toContain('Last checked 2 hours ago')
   })
 
+  it('labels a backup snapshot and keeps its timestamp visible', () => {
+    const page = render([{ ...loadedSource(), fromFallback: true }])
+
+    expect(page.textContent).toContain('Last checked 4 minutes ago')
+    expect(page.textContent).toContain('Showing the last published snapshot.')
+  })
+
   it('explains an empty or unreachable source, and shows a switch for several', () => {
     const empty: SourceStatus = {
       source: { label: 'United States', url: 'us.json', format: 'json' },

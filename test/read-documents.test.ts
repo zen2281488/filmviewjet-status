@@ -159,6 +159,54 @@ describe('readPreviousDocument', () => {
 })
 
 describe('loadSource', () => {
+  const stand = {
+    label: 'Stand',
+    url: 'https://stand.example.test/status-data/status.json',
+    fallbackUrl: 'stand-status.json',
+    format: 'json',
+  } as const
+  const pageUrl = 'https://status.example.test/project/'
+
+  it('keeps a live document that reports a service outage', async () => {
+    const fetchFunction = respondWith(() => Response.json(SAVED))
+    const live = await loadSource(stand, pageUrl, fetchFunction)
+
+    expect(live.document?.targets.website?.status).toBe('down')
+    expect(live.fromFallback).toBeUndefined()
+    expect(fetchFunction).toHaveBeenCalledTimes(1)
+    expect(String(fetchFunction.mock.calls[0]?.[0])).toBe(stand.url)
+  })
+
+  it('loads the Pages snapshot after a timed-out live request and keeps the saved history', async () => {
+    const fetchFunction = respondWith(() =>
+      Response.json(SAVED),
+    ).mockRejectedValueOnce(
+      new DOMException('The operation timed out.', 'TimeoutError'),
+    )
+    const status = await loadSource(stand, pageUrl, fetchFunction)
+
+    expect(fetchFunction).toHaveBeenCalledTimes(2)
+    expect(fetchFunction.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal)
+    expect(String(fetchFunction.mock.calls[1]?.[0])).toMatch(
+      /^https:\/\/status\.example\.test\/project\/stand-status\.json\?fresh=\d+$/u,
+    )
+    expect(status.fromFallback).toBe(true)
+    expect(status.source).toEqual(stand)
+    expect(status.document).toEqual(normalizeDocument(SAVED))
+  })
+
+  it('uses the backup when the live server responds without a status document', async () => {
+    const fetchFunction = respondWith(() =>
+      Response.json(SAVED),
+    ).mockResolvedValueOnce(
+      Response.json({ error: 'stand temporarily unavailable' }),
+    )
+
+    const status = await loadSource(stand, pageUrl, fetchFunction)
+
+    expect(status.fromFallback).toBe(true)
+  })
+
   it("reads a Firestore document and skips the cache for the page's own file", async () => {
     const fetchFunction = respondWith(() =>
       Response.json({

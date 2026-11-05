@@ -17,7 +17,8 @@
     },
     {
       "label": "С сервера FilmViewJet",
-      "url": "https://zen2281488.github.io/filmviewjet-status/stand-status.json"
+      "url": "https://filmview.85-172-39-153.sslip.io/status-data/status.json",
+      "fallbackUrl": "stand-status.json"
     }
   ],
   "targets": [

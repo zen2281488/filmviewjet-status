@@ -25,6 +25,10 @@ function describeFreshness(
   overall: OverallStatus,
   now: number,
 ): string {
+  if (status.state === 'loading') {
+    return 'Waiting for the latest check results.'
+  }
+
   if (status.state === 'unreachable') {
     return "This page couldn't load the latest status. It tries again every minute."
   }
@@ -39,8 +43,11 @@ function describeFreshness(
     intervalMinutes > 0
       ? ` Checks run about every ${String(intervalMinutes)} minutes.`
       : ''
+  const snapshot = status.fromFallback
+    ? ' Showing the last published snapshot.'
+    : ''
 
-  return `Last checked ${formatRelativeTime(updatedAt, now)}${from}.${cadence}`
+  return `Last checked ${formatRelativeTime(updatedAt, now)}${from}.${cadence}${snapshot}`
 }
 
 /**
@@ -61,7 +68,11 @@ function renderBanner(
   const text = createElement('div', 'banner__text')
 
   text.append(
-    createElement('h2', 'banner__headline', HEADLINES[overall]),
+    createElement(
+      'h2',
+      'banner__headline',
+      status.state === 'loading' ? 'Loading status' : HEADLINES[overall],
+    ),
     createElement(
       'p',
       'banner__detail',

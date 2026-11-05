@@ -16,8 +16,13 @@ const sources: SourceConfig[] =
 const root = document.querySelector<HTMLElement>('#status')
 const tooltip = document.querySelector<HTMLElement>('#tooltip')
 
-let statuses: SourceStatus[] = []
-let renders = 0
+let statuses: SourceStatus[] = sources.map(source => ({
+  source,
+  state: 'loading',
+  document: undefined,
+}))
+let hasRenderedBoard = false
+let refreshInProgress = false
 
 /**
  * The source tab shown first, remembered in this browser. The page works the
@@ -47,11 +52,13 @@ function render(): void {
     return
   }
 
+  root.classList.toggle('page--refreshed', hasRenderedBoard)
   root.replaceChildren(
     ...renderPage(statuses, selected, config.groups, Date.now()),
   )
-  renders += 1
-  root.classList.toggle('page--refreshed', renders > 1)
+  if (statuses[selected]?.document) {
+    hasRenderedBoard = true
+  }
 }
 
 /**
@@ -61,17 +68,28 @@ function render(): void {
  * @returns {Promise<void>} Resolves once the page is redrawn.
  */
 async function refresh(): Promise<void> {
-  if (import.meta.env.DEV && location.search.includes('sample')) {
-    const { buildSampleStatuses } =
-      await import('./dev/build-sample-statuses.ts')
-    statuses = buildSampleStatuses(sources, Date.now())
-  } else {
-    statuses = await Promise.all(
-      sources.map(source => loadSource(source, document.baseURI)),
-    )
+  if (refreshInProgress) {
+    return
   }
 
-  render()
+  refreshInProgress = true
+  try {
+    if (import.meta.env.DEV && location.search.includes('sample')) {
+      const { buildSampleStatuses } =
+        await import('./dev/build-sample-statuses.ts')
+      statuses = buildSampleStatuses(sources, Date.now())
+      render()
+    } else {
+      await Promise.all(
+        sources.map(async (source, index) => {
+          statuses[index] = await loadSource(source, document.baseURI)
+          render()
+        }),
+      )
+    }
+  } finally {
+    refreshInProgress = false
+  }
 }
 
 if (root && tooltip) {
@@ -108,5 +126,6 @@ if (root && tooltip) {
     void refresh()
   }, REFRESH_MILLISECONDS)
 
+  render()
   void refresh()
 }

@@ -4,9 +4,9 @@ on:
   schedule:
     # Every five minutes, the most often GitHub allows, starting at two past
     # the hour, because the top of the hour is when GitHub is busiest.
-    - cron: '2-59/5 * * * *'
+    - cron: '3,8,13,18,23,28,33,38,43,48,53,58 * * * *'
   push:
-    branches: [main]
+    branches: [main, status-tick]
   workflow_dispatch:
 
 permissions:
@@ -26,6 +26,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref == 'refs/heads/status-tick' && 'main' || github.sha }}
 
       - uses: actions/setup-node@v7
         with:
@@ -37,11 +39,11 @@ jobs:
       # A push runs every check before publishing. A scheduled run only
       # rebuilds the page, to stay quick.
       - name: Check and build
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: npm run check
 
       - name: Build
-        if: github.event_name != 'push'
+        if: github.event_name != 'push' || github.ref != 'refs/heads/main'
         run: npm run build
 
       - id: pages

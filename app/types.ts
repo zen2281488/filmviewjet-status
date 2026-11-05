@@ -5,15 +5,16 @@ import type {
 } from '../shared/types.ts'
 
 /**
- * How loading a source ended. "empty" means nothing has been published there
- * yet, and "unreachable" means the request failed.
+ * How loading a source is going. "empty" means nothing has been published
+ * there yet, and "unreachable" means the request failed.
  */
-type LoadState = 'loaded' | 'empty' | 'unreachable'
+type LoadState = 'loading' | 'loaded' | 'empty' | 'unreachable'
 
 interface SourceStatus {
   source: SourceConfig
   state: LoadState
   document: StatusDocument | undefined
+  fromFallback?: boolean
 }
 
 /**

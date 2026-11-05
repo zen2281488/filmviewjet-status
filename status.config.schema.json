@@ -109,6 +109,11 @@
             "type": "string",
             "description": "Where to read the document. It has to allow cross-origin requests."
           },
+          "fallbackUrl": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A backup document in the same format, used when the primary document cannot be loaded. Relative URLs are resolved against the page."
+          },
           "format": {
             "enum": ["json", "firestore"],
             "default": "json",

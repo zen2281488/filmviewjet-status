@@ -86,6 +86,7 @@ interface TargetConfig {
 interface SourceConfig {
   label: string
   url: string
+  fallbackUrl?: string
   /**
    * "firestore" reads a Firestore REST API document and unwraps its typed
    * fields.

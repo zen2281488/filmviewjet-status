@@ -57,6 +57,28 @@ describe('readConfig', () => {
     expect(config.sources[0]?.format).toBe('firestore')
   })
 
+  it('accepts a relative backup URL for a source', () => {
+    const config = readConfig(
+      JSON.stringify({
+        title: 'Acme',
+        sources: [
+          {
+            label: 'Stand',
+            url: 'https://stand.example/status.json',
+            fallbackUrl: 'stand-status.json',
+          },
+        ],
+      }),
+    )
+
+    expect(config.sources[0]).toEqual({
+      label: 'Stand',
+      url: 'https://stand.example/status.json',
+      fallbackUrl: 'stand-status.json',
+      format: 'json',
+    })
+  })
+
   it('lists every problem at once, with where each one is', () => {
     const attempt = (): void => {
       readConfig(

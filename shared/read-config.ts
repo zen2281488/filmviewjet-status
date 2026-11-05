@@ -33,7 +33,7 @@ const TARGET_KEYS = new Set([
   'slowAfterMilliseconds',
 ])
 
-const SOURCE_KEYS = new Set(['label', 'url', 'format'])
+const SOURCE_KEYS = new Set(['label', 'url', 'fallbackUrl', 'format'])
 
 /**
  * Collects every problem in the config, so one run of the build names all of
@@ -292,6 +292,12 @@ function readSource(
   problems.unknownKeys(source, SOURCE_KEYS, where)
 
   const format = source.format ?? 'json'
+  const fallbackUrl = readText(
+    source.fallbackUrl,
+    `${where}.fallbackUrl`,
+    problems,
+    source.fallbackUrl !== undefined,
+  )
 
   if (format !== 'json' && format !== 'firestore') {
     problems.add(`${where}.format has to be "json" or "firestore".`)
@@ -300,6 +306,7 @@ function readSource(
   return {
     label: readText(source.label, `${where}.label`, problems, true),
     url: readText(source.url, `${where}.url`, problems, true),
+    ...(fallbackUrl !== '' && { fallbackUrl }),
     format: format === 'firestore' ? 'firestore' : 'json',
   }
 }
