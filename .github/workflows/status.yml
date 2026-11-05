@@ -54,6 +54,11 @@ jobs:
         env:
           STATUS_PAGE_URL: ${{ steps.pages.outputs.base_url }}
 
+      - name: Mirror the server checks
+        run: node monitor/mirror-stand.ts
+        env:
+          STATUS_PAGE_URL: ${{ steps.pages.outputs.base_url }}
+
       - uses: actions/upload-pages-artifact@v5
         with:
           path: site

@@ -1,39 +1,79 @@
 {
   "$schema": "./status.config.schema.json",
-  "title": "QuickCasa open source status",
-  "description": "Live status of the free, open source tools QuickCasa publishes, checked about every five minutes.",
-  "groups": ["Apps", "Embeds"],
+  "title": "Статус FilmViewJet",
+  "description": "Публичный API проверяется из GitHub Actions. Вкладка сервера показывает внутренние сервисы и доступность поставщиков с рабочего маршрута FilmViewJet.",
+  "intervalMinutes": 5,
+  "groups": [
+    "Публичный API",
+    "Инфраструктура",
+    "Сетевые маршруты",
+    "Внешние API",
+    "Фоновые данные"
+  ],
+  "sources": [
+    {
+      "label": "Из интернета",
+      "url": "https://zen2281488.github.io/filmviewjet-status/status.json"
+    },
+    {
+      "label": "С сервера FilmViewJet",
+      "url": "https://zen2281488.github.io/filmviewjet-status/stand-status.json"
+    }
+  ],
   "targets": [
     {
-      "id": "rental-inspection",
-      "label": "Rental inspection app",
-      "group": "Apps",
-      "url": "https://quickcasa.github.io/rental-inspection/",
-      "contains": "inspection app"
+      "id": "api",
+      "label": "FilmViewJet API · HTTPS",
+      "group": "Публичный API",
+      "url": "https://filmview.85-172-39-153.sslip.io/api/v1/app/update-manifest?abi=arm64-v8a&versionCode=1",
+      "expectedStatus": 200,
+      "contains": "\"available\":",
+      "slowAfterMilliseconds": 1800
     },
     {
-      "id": "pet-profile",
-      "label": "Pet profile generator",
-      "group": "Apps",
-      "url": "https://quickcasa.github.io/pet-profile/"
+      "id": "home",
+      "label": "Главная и рекомендации каталога",
+      "group": "Публичный API",
+      "url": "https://filmview.85-172-39-153.sslip.io/api/v1/home",
+      "expectedStatus": 200,
+      "contains": "\"sections\":[{",
+      "slowAfterMilliseconds": 3500
     },
     {
-      "id": "rubs-calculator",
-      "label": "RUBS calculator",
-      "group": "Apps",
-      "url": "https://quickcasa.github.io/rubs-calculator/"
+      "id": "catalog",
+      "label": "Категории каталога",
+      "group": "Публичный API",
+      "url": "https://filmview.85-172-39-153.sslip.io/api/v1/catalog/categories",
+      "expectedStatus": 200,
+      "contains": "\"items\":[{",
+      "slowAfterMilliseconds": 2000
     },
     {
-      "id": "accessibility-widget",
-      "label": "Accessibility widget script",
-      "group": "Embeds",
-      "url": "https://quickcasa.github.io/accessibility-widget/v1/accessibility.js"
+      "id": "collections",
+      "label": "Каталог подборок",
+      "group": "Публичный API",
+      "url": "https://filmview.85-172-39-153.sslip.io/api/v1/collections?limit=1",
+      "expectedStatus": 200,
+      "contains": "\"items\":[{",
+      "slowAfterMilliseconds": 2000
     },
     {
-      "id": "accessibility-demo",
-      "label": "Accessibility widget demo",
-      "group": "Embeds",
-      "url": "https://quickcasa.github.io/accessibility-widget/"
+      "id": "link",
+      "label": "Настройки входа на ТВ",
+      "group": "Публичный API",
+      "url": "https://filmview.85-172-39-153.sslip.io/link/config",
+      "expectedStatus": 200,
+      "contains": "\"googleClientId\":\"",
+      "slowAfterMilliseconds": 2000
+    },
+    {
+      "id": "hdrezka",
+      "label": "HDRezka · серверная сессия",
+      "group": "Публичный API",
+      "url": "https://filmview.85-172-39-153.sslip.io/api/v1/providers/runtime",
+      "expectedStatus": 200,
+      "contains": "\"status\":\"AVAILABLE\"",
+      "slowAfterMilliseconds": 2500
     }
   ]
 }
