@@ -1,5 +1,12 @@
 # Status Page
 
+This FilmViewJet fallback monitors the public API and keeps its 90-day uptime.
+The [main status page](https://93-113-171-2.sslip.io/filmview-status/) is hosted
+separately. The Pages workflow publishes only the API history and static
+assets. Both the scheduled and heartbeat runs use the same publication check.
+
+The notes below describe the upstream QuickCasa template.
+
 [![CI](https://github.com/QuickCasa/status-page/actions/workflows/ci.yml/badge.svg)](https://github.com/QuickCasa/status-page/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
