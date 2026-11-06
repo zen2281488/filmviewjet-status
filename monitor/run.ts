@@ -5,6 +5,7 @@ import { readConfig } from '../shared/read-config.ts'
 import { applyResults } from './apply-results.ts'
 import { checkTarget } from './check-target.ts'
 import { describeResult } from './describe-result.ts'
+import { PUBLIC_CHECK_FAILURE, retainPublicHistory } from './public-status.ts'
 import { readPreviousDocument } from './read-previous-document.ts'
 
 // Runs one round of checks: read the config and the last published document,
@@ -31,9 +32,13 @@ function warn(message: string): void {
 async function run(): Promise<void> {
   const config = readConfig(await readFile('status.config.json', 'utf8'))
 
-  if (config.targets.length === 0) {
-    console.info('No targets to check. The page reads its configured sources.')
-    return
+  const [target] = config.targets
+  if (
+    target?.id !== 'api' ||
+    config.targets.length !== 1 ||
+    config.sources.length > 0
+  ) {
+    throw new Error('The public Pages config must contain only the API check')
   }
 
   const outputFile = path.join(OUTPUT_DIRECTORY, DOCUMENT_FILE)
@@ -43,13 +48,15 @@ async function run(): Promise<void> {
     warn,
   )
   const now = Date.now()
-  const results = await Promise.all(
-    config.targets.map(target => checkTarget(target)),
-  )
+  const result = await checkTarget(target)
+  const publicResult = {
+    ...result,
+    error: result.up ? '' : PUBLIC_CHECK_FAILURE,
+  }
   const statusDocument = applyResults(
-    previous,
+    retainPublicHistory(previous, target),
     config,
-    results,
+    [publicResult],
     now,
     ON_GITHUB ? 'GitHub Actions' : '',
   )
@@ -57,10 +64,7 @@ async function run(): Promise<void> {
   await mkdir(OUTPUT_DIRECTORY, { recursive: true })
   await writeFile(outputFile, JSON.stringify(statusDocument))
 
-  for (const result of results) {
-    const target = config.targets.find(entry => entry.id === result.targetId)
-    console.info(describeResult(target?.label ?? result.targetId, result))
-  }
+  console.info(describeResult(target.label, publicResult))
 
   console.info(
     previous

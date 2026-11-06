@@ -1,25 +1,10 @@
 {
   "$schema": "./status.config.schema.json",
-  "title": "Статус FilmViewJet",
-  "description": "Публичный API проверяется из GitHub Actions. Вкладка сервера показывает внутренние сервисы и доступность поставщиков с рабочего маршрута FilmViewJet.",
+  "title": "Резервный статус FilmViewJet",
+  "description": "Доступность публичного API и история проверок за 90 дней.",
   "intervalMinutes": 5,
   "groups": [
-    "Публичный API",
-    "Инфраструктура",
-    "Сетевые маршруты",
-    "Внешние API",
-    "Фоновые данные"
-  ],
-  "sources": [
-    {
-      "label": "Из интернета",
-      "url": "https://zen2281488.github.io/filmviewjet-status/status.json"
-    },
-    {
-      "label": "С сервера FilmViewJet",
-      "url": "https://filmview.85-172-39-153.sslip.io/status-data/status.json",
-      "fallbackUrl": "stand-status.json"
-    }
+    "Публичный API"
   ],
   "targets": [
     {
@@ -30,51 +15,6 @@
       "expectedStatus": 200,
       "contains": "\"available\":",
       "slowAfterMilliseconds": 1800
-    },
-    {
-      "id": "home",
-      "label": "Главная и рекомендации каталога",
-      "group": "Публичный API",
-      "url": "https://filmview.85-172-39-153.sslip.io/api/v1/home",
-      "expectedStatus": 200,
-      "contains": "\"sections\":[{",
-      "slowAfterMilliseconds": 3500
-    },
-    {
-      "id": "catalog",
-      "label": "Категории каталога",
-      "group": "Публичный API",
-      "url": "https://filmview.85-172-39-153.sslip.io/api/v1/catalog/categories",
-      "expectedStatus": 200,
-      "contains": "\"items\":[{",
-      "slowAfterMilliseconds": 2000
-    },
-    {
-      "id": "collections",
-      "label": "Каталог подборок",
-      "group": "Публичный API",
-      "url": "https://filmview.85-172-39-153.sslip.io/api/v1/collections?limit=1",
-      "expectedStatus": 200,
-      "contains": "\"items\":[{",
-      "slowAfterMilliseconds": 2000
-    },
-    {
-      "id": "link",
-      "label": "Настройки входа на ТВ",
-      "group": "Публичный API",
-      "url": "https://filmview.85-172-39-153.sslip.io/link/config",
-      "expectedStatus": 200,
-      "contains": "\"googleClientId\":\"",
-      "slowAfterMilliseconds": 2000
-    },
-    {
-      "id": "hdrezka",
-      "label": "HDRezka · серверная сессия",
-      "group": "Публичный API",
-      "url": "https://filmview.85-172-39-153.sslip.io/api/v1/providers/runtime",
-      "expectedStatus": 200,
-      "contains": "\"status\":\"AVAILABLE\"",
-      "slowAfterMilliseconds": 2500
     }
   ]
 }

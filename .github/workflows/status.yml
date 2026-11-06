@@ -22,6 +22,7 @@ concurrency:
 jobs:
   check:
     name: Check the targets and build the page
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/status-tick'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -51,15 +52,13 @@ jobs:
 
       # Reads the history from the published status.json, checks every
       # target, and writes the updated file into the built page.
-      - name: Check every target
+      - name: Check the public API
         run: npm run monitor
         env:
           STATUS_PAGE_URL: ${{ steps.pages.outputs.base_url }}
 
-      - name: Mirror the server checks
-        run: node monitor/mirror-stand.ts
-        env:
-          STATUS_PAGE_URL: ${{ steps.pages.outputs.base_url }}
+      - name: Verify the public artifact
+        run: node monitor/verify-pages.ts
 
       - uses: actions/upload-pages-artifact@v5
         with:
